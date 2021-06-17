@@ -1,0 +1,19 @@
+{
+  "name": "nest-app",
+  "version": "1.0.0",
+  "description": "Nest App for studying",
+  "main": "s",
+  "scripts": {
+    "run:services": "docker-compose up -d"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Taytay884/nest-todo.git"
+  },
+  "author": "Itay Ben Shmuel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Taytay884/nest-todo/issues"
+  },
+  "homepage": "https://github.com/Taytay884/nest-todo#readme"
+}

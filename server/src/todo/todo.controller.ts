@@ -6,8 +6,10 @@ import {
   Param,
   Post,
   Put,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
-import { toPromise } from 'src/shared/utils';
+import { toPromise } from '@shared/utils';
 import { TodoCreateDto } from './dto/todo-create.dto';
 import { TodoListDto } from './dto/todo-list.dto';
 import { TodoDto } from './dto/todo.dto';
@@ -28,20 +30,22 @@ export class TodoController {
   }
 
   @Post()
+  @UsePipes(new ValidationPipe())
   async create(@Body() todoCreateDto: TodoCreateDto): Promise<TodoDto> {
     return await this.todoService.createTodo(todoCreateDto);
   }
 
   @Put(':id')
+  @UsePipes(new ValidationPipe())
   async update(
     @Param('id') id: string,
-    @Body() todoDto: { name: string; description: string },
+    @Body() todoDto: TodoDto,
   ): Promise<TodoDto> {
-    return await this.todoService.updateTodo({ ...todoDto, id });
+    return await this.todoService.updateTodo(todoDto);
   }
 
   @Delete(':id')
-  async destory(@Param('id') id: string): Promise<TodoDto> {
+  async destroy(@Param('id') id: string): Promise<TodoDto> {
     return await this.todoService.destroyTodo(id);
   }
 }

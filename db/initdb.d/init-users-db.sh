@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -e
+
+psql <<-EOSQL
+CREATE USER todo;
+CREATE DATABASE todo ENCODING UTF8;
+GRANT ALL PRIVILEGES ON DATABASE todo TO todo;
+
+ALTER USER todo WITH PASSWORD 'password123';
+ALTER USER todo WITH SUPERUSER;
+EOSQL

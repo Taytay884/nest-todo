@@ -2,18 +2,22 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { todos } from 'src/mock/todos.mock';
 import { toTodoDto } from 'src/shared/mapper';
 import { toPromise } from 'src/shared/utils';
-import { v4 as uuid } from 'uuid';
 import { TodoCreateDto } from './dto/todo-create.dto';
 import { TodoDto } from './dto/todo.dto';
-import { TodoEntity } from './entity/todo.entity';
+import { TodoEntity } from '@todo/entity/todo.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class TodoService {
+  constructor(
+    @InjectRepository(TodoEntity)
+    private readonly todoRepo: Repository<TodoEntity>,
+  ) {}
   todos: TodoEntity[] = todos;
 
   async getAllTodo(): Promise<TodoDto[]> {
-    const todos = this.todos.map(toTodoDto);
-    return toPromise(todos);
+    return await this.todoRepo.find();
   }
 
   async updateTodo({ id, name, description }: TodoDto): Promise<TodoDto> {
@@ -46,27 +50,30 @@ export class TodoService {
   }
 
   async getOneTodo(id: string): Promise<TodoDto> {
-    const todo = this.todos.find((todo) => todo.id === id);
+    const todo = await this.todoRepo.findOne({
+      where: { id },
+      relations: ['tasks'],
+    });
 
     if (!todo) {
       throw new HttpException(
-        `Todo item doesn't exist`,
+        `Todo list doesn't exist`,
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    return toPromise(toTodoDto(todo));
+    return toTodoDto(todo);
   }
+
   async createTodo(todoDto: TodoCreateDto): Promise<TodoDto> {
     const { name, description } = todoDto;
 
-    const todo: TodoEntity = {
-      id: uuid(),
+    const todo: TodoEntity = await this.todoRepo.create({
       name,
       description,
-    };
+    });
 
-    this.todos.push(todo);
+    await this.todoRepo.save(todo);
     return toPromise(toTodoDto(todo));
   }
 }
